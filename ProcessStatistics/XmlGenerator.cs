@@ -1,24 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Xml.Linq;
+using System.ComponentModel.DataAnnotations;
 
 namespace ProcessStatistics
 {
     public static class XmlGenerator
     {
-        public static XDocument GenerateXml(ICollection<ProcessStatistics> data)
+        public static XDocument GenerateXml(List<object> data)
         {
-            XElement root = new XElement("processes");
+            XElement root = new XElement($"data");
 
             foreach (var item in data)
             {
-                XElement processElement = new XElement("process");
-                processElement.Add(new XElement("name",item.Name));
-                processElement.Add(new XElement("instancecount", item.InstanceCount));
-                processElement.Add(new XElement("allmemory", item.AllMemory));
 
-                root.Add(processElement);
+                Type instanceType = item.GetType();
+                XElement node = new XElement("instance");
+
+                foreach(PropertyInfo info in instanceType.GetProperties())
+                {
+
+
+                  node.Add(new XElement(info.Name, info.GetValue(item)));
+                }
+
             }
 
             return new XDocument(root);

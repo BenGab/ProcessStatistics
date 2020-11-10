@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Security.Cryptography;
 
@@ -11,7 +12,7 @@ namespace ProcessStatistics
             Process[] processes = Process.GetProcesses();
 
             var query = (from process in processes.AsEnumerable()
-                         select new ProcessStatistics
+                         select (object)new ProcessStatistics
                          {
                              Name = process.ProcessName,
                              InstanceCount = 1,
@@ -29,7 +30,8 @@ namespace ProcessStatistics
                          AllMemory = grp.Sum(x=> long.Parse(x.Element("allmemory").Value))
                      }).ToList();
 
-            var task = TracertProcessor.ProcessHops("google.com").GetAwaiter().GetResult();
+            var hopModel = TracertProcessor.ProcessHops("google.com", "index.hu").GetAwaiter().GetResult().Select(x=> (object)x).ToList();
+           var xmlModel = XmlGenerator.GenerateXml(hopModel);
         }
     }
 }
